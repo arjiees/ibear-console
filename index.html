@@ -1,0 +1,570 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>IBEAR Class Console</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#070D1A; --card:#0D1526; --card2:#101A2E; --line:#1C2740;
+    --ink:#E9EEF9; --ink2:#AFBDD6; --muted:#7788A6;
+    --c1:#4A86E8; --c2:#C2801F; --c3:#23A06C; --c4:#8F6EE8; --c5:#E0503C; --c6:#0E96B8;
+    --good:#23A06C; --warn:#C2801F; --crit:#E0503C;
+    --good-bg:rgba(35,160,108,.16); --warn-bg:rgba(194,128,31,.18); --crit-bg:rgba(224,80,60,.16);
+    --r:16px;
+    --display:'Sora',system-ui,sans-serif;
+    --body:'Public Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--body);font-size:14px;line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    font-variant-numeric:tabular-nums;
+  }
+  .wrap{max-width:1320px;margin:0 auto;padding:28px 20px 64px}
+  @media(max-width:520px){.wrap{padding:20px 16px 48px}}
+
+  header.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+  h1{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.01em;margin:0}
+  .sub{color:var(--muted);font-size:12.5px}
+  .sync{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:12px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--good);box-shadow:0 0 0 3px var(--good-bg)}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
+  @media(max-width:940px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px 22px}
+  .card.flat{background:var(--card);border-color:var(--line)}
+  .chead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+  .ctitle{font-family:var(--display);font-weight:500;font-size:14.5px;letter-spacing:.01em}
+  .clink{color:var(--c1);font-size:12.5px;text-decoration:none;font-weight:500;opacity:.9}
+  .clink:hover{opacity:1;text-decoration:underline}
+  .cnote{color:var(--muted);font-size:11.5px;margin-top:2px}
+
+  .hero{text-align:center;margin:20px 0 4px}
+  .hero .big{font-family:var(--display);font-weight:600;font-size:38px;letter-spacing:-.02em;line-height:1.05}
+  .hero .cap{color:var(--muted);font-size:13px;margin-top:6px}
+  @media(max-width:520px){.hero .big{font-size:30px}}
+
+  /* stacked grade-budget bar */
+  .stack{display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px;background:transparent;margin:18px 0 10px}
+  .seg{height:100%}
+  .seg.earned{background:var(--good)}
+  .seg.lost{background:var(--crit)}
+  .seg.open{background:#243352}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px}
+  .lg{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2)}
+  .sw{width:9px;height:9px;border-radius:2px;flex:none}
+  .lg b{color:var(--ink);font-weight:600}
+
+  .bubble{display:inline-flex;align-items:center;gap:7px;background:var(--crit);color:#12060a;
+    font-weight:700;font-size:12px;padding:5px 10px;border-radius:8px;margin-top:2px}
+
+  /* net-worth style twin stats */
+  
+  .gpa{display:grid;grid-template-columns:auto 1fr;gap:30px;align-items:center;margin-top:4px}
+  @media(max-width:640px){.gpa{grid-template-columns:1fr;gap:18px}}
+  .gpanum{font-family:var(--display);font-weight:600;font-size:68px;line-height:.92;
+    letter-spacing:-.035em;color:var(--good);font-variant-numeric:tabular-nums}
+  .gpanum small{display:block;font-family:var(--body);font-size:11px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-top:10px}
+  .gpafacts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:640px){.gpafacts{grid-template-columns:1fr 1fr}}
+  .gpaf{border-left:1px solid var(--line);padding-left:14px}
+  .gpaf .k{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-weight:700}
+  .gpaf .v{font-family:var(--display);font-weight:600;font-size:21px;margin-top:5px;
+    letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+  .gpaf .n{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45}
+  .gpaf .v.ok{color:var(--good)} .gpaf .v.bad{color:var(--crit)}
+  .twin{display:flex;justify-content:center;gap:56px;margin:14px 0 6px;flex-wrap:wrap}
+  .tw{text-align:center}
+  .tw .lab{display:flex;align-items:center;justify-content:center;gap:7px;color:var(--ink2);font-size:12.5px}
+  .tw .val{font-family:var(--display);font-weight:600;font-size:28px;margin-top:4px;letter-spacing:-.02em}
+  .pill{display:inline-block;margin-top:7px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+  .pill.g{background:var(--good-bg);color:#5FD3A2}
+  .pill.w{background:var(--warn-bg);color:#E0A44A}
+
+  .ranges{display:flex;justify-content:center;gap:6px;margin-top:14px}
+  .ranges button{background:none;border:0;color:var(--muted);font:inherit;font-size:12px;font-weight:600;
+    padding:5px 12px;border-radius:999px;cursor:pointer}
+  .ranges button:hover{color:var(--ink2)}
+  .ranges button[aria-pressed="true"]{background:#1B2740;color:var(--ink)}
+  .ranges button:focus-visible{outline:2px solid var(--c1);outline-offset:2px}
+
+  .plot{position:relative;margin-top:10px}
+  .plot svg{display:block;width:100%;height:auto}
+  .tip{position:absolute;pointer-events:none;opacity:0;transition:opacity .12s;
+    background:#16223A;border:1px solid var(--line);border-radius:10px;padding:8px 11px;
+    font-size:12px;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.45);z-index:3}
+  .tip .d{color:var(--muted);font-size:11px;margin-bottom:4px}
+  .tip .r{display:flex;align-items:center;gap:7px}
+
+  /* course boxes */
+  .sech{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:-.01em;
+    margin:34px 0 4px}
+  .secn{color:var(--muted);font-size:12.5px;margin:0 0 16px;max-width:76ch;line-height:1.55}
+  .cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  @media(max-width:1000px){.cgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:660px){.cgrid{grid-template-columns:1fr}}
+
+  .cbox{background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:16px 18px 18px;display:flex;flex-direction:column}
+  .cbox.dim{opacity:.72}
+  .cbox .bh{display:flex;align-items:flex-start;gap:9px;margin-bottom:2px}
+  .cbox .bh .sw{width:8px;height:8px;border-radius:50%;margin-top:5px;flex:none}
+  .cbox .bt{font-size:13.5px;font-weight:600;line-height:1.3}
+  .cbox .bc{color:var(--muted);font-size:11px;letter-spacing:.04em;margin-top:2px}
+  .cbox .bnum{font-family:var(--display);font-weight:600;font-size:28px;letter-spacing:-.02em;
+    margin:14px 0 2px;line-height:1}
+  .cbox .bsub{color:var(--muted);font-size:11.5px;min-height:15px}
+  .cbox .bstack{display:flex;height:9px;border-radius:5px;overflow:hidden;gap:2px;margin:14px 0 9px}
+  .cbox .bstack i{display:block;height:100%}
+  .cbox .bleg{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--ink2)}
+  .cbox .bleg em{font-style:normal;color:var(--muted)}
+  .cbox .gchip{display:inline-block;font-family:var(--display);font-weight:600;font-size:22px;
+    padding:2px 12px;border-radius:8px;background:var(--good-bg);color:#5FD3A2;margin:12px 0 2px}
+  .cbox .soon{font-family:var(--display);font-weight:500;font-size:15px;color:var(--ink2);margin:16px 0 2px}
+
+  /* score table */
+  .stbl{width:100%;border-collapse:collapse;margin-top:16px;font-size:13px}
+  .stbl th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);
+    font-weight:600;text-align:right;padding:0 0 10px;white-space:nowrap}
+  .stbl th:first-child{text-align:left}
+  .stbl td{padding:12px 0;border-top:1px solid var(--line);text-align:right;vertical-align:middle;white-space:nowrap}
+  .stbl td:first-child{text-align:left;width:46%}
+  .stbl .nm{display:flex;align-items:center;gap:10px;min-width:0}
+  .stbl .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .stbl .nm .cd{color:var(--muted);font-size:11.5px}
+  .stbl .st{font-family:var(--display);font-weight:600;font-size:15px}
+  .stbl .pts{color:var(--ink2)}
+  .stbl .none{color:var(--muted);font-weight:400;font-size:12.5px}
+  .stbl .bar{height:4px;border-radius:2px;background:#1A2540;margin-top:7px;overflow:hidden}
+  .stbl .bar i{display:block;height:100%;border-radius:2px}
+  .stbl tr.sect td{padding:20px 0 8px;border-top:0;text-align:left;
+    font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;font-weight:700;color:var(--ink2)}
+  .stbl tbody tr:first-child.sect td{padding-top:4px}
+  .stbl .sn{text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted);font-size:11.5px;margin-left:8px}
+  .stbl .chip{display:inline-block;font-family:var(--display);font-weight:600;font-size:13px;
+    padding:2px 9px;border-radius:6px;background:var(--good-bg);color:#5FD3A2}
+  @media(max-width:560px){.stbl .hidesm{display:none}.stbl td:first-child{width:auto}}
+
+  /* category-style rows */
+  .rows{display:flex;flex-direction:column;gap:15px;margin-top:16px}
+  .row{display:grid;grid-template-columns:minmax(0,1.4fr) auto minmax(70px,1fr) auto;gap:12px;align-items:center}
+  @media(max-width:560px){.row{grid-template-columns:minmax(0,1fr) auto;row-gap:7px}
+    .row .track{grid-column:1/-1}.row .max{grid-column:2}}
+  .rname{display:flex;align-items:center;gap:10px;min-width:0}
+  .rname .sw{width:8px;height:8px;border-radius:50%}
+  .rname span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px}
+  .rval{font-size:13px;font-weight:600;text-align:right}
+  .track{height:7px;border-radius:4px;background:#1A2540;overflow:hidden}
+  .fill{height:100%;border-radius:4px}
+  .max{color:var(--muted);font-size:12.5px;text-align:right;white-space:nowrap}
+
+  /* review list */
+  .items{display:flex;flex-direction:column;gap:2px;margin-top:12px}
+  .item{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:10px}
+  .item+.item{border-top:1px solid var(--line)}
+  .item:hover{background:var(--card2)}
+  .idate{color:var(--muted);font-size:12.5px;width:60px;flex:none}
+  .iname{flex:1;min-width:0;font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .icode{font-size:11px;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:6px;flex:none}
+  .ilate{font-size:11.5px;font-weight:600;color:var(--ink2);flex:none;width:80px;text-align:right}
+  .ilate.stale{color:var(--warn)}
+  .iamt{font-size:13px;font-weight:600;flex:none;width:62px;text-align:right}
+  @media(max-width:560px){.idate{width:50px}.ilate{width:auto}}
+
+  /* course groups inside lists */
+  .grp{display:flex;align-items:center;gap:9px;padding:16px 10px 7px;border-top:1px solid var(--line)}
+  .grp:first-child{border-top:0;padding-top:8px}
+  .grp .gn{font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+  .grp .gc{margin-left:auto;color:var(--muted);font-size:11.5px;font-weight:600}
+  .grp + .item{border-top:0}
+
+  .empty{text-align:center;color:var(--muted);padding:34px 0;font-size:13px}
+
+  .foot{margin-top:26px;color:var(--muted);font-size:11.5px;line-height:1.7}
+  .foot b{color:var(--ink2);font-weight:600}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Fall 2026 Class Console</h1>
+      <div class="sub">Core courses · deadlines only · times in Los Angeles (PT)</div>
+    </div>
+    <div class="sync"><span class="dot"></span><span id="syncline">Brightspace synced Oct 11, 2026</span></div>
+  </header>
+
+  <div class="grid">
+
+    <!-- B: Term burn -->
+    <section class="card" style="grid-column:1/-1">
+      <div class="chead">
+        <div class="ctitle">Term burn</div>
+        <span class="clink">10 deliverables</span>
+      </div>
+      <div class="cnote">Every dated deliverable in the core courses, against how many deadlines are already behind us.</div>
+
+      <div class="twin">
+        <div class="tw">
+          <div class="lab"><span class="sw" style="background:var(--c2);border-radius:50%"></span>Due to date</div>
+          <div class="val" id="twDue">—</div>
+          <div class="pill w" id="twDuePill">—</div>
+        </div>
+        <div class="tw">
+          <div class="lab"><span class="sw" style="background:var(--c1);border-radius:50%"></span>Still ahead</div>
+          <div class="val" id="twDone">—</div>
+          <div class="pill g" id="twDonePill">—</div>
+        </div>
+      </div>
+
+      <div class="plot" id="burnPlot">
+        <svg id="burnSvg" viewBox="0 0 760 210" role="img" aria-label="Cumulative deliverables due versus closed out"></svg>
+        <div class="tip" id="burnTip"></div>
+      </div>
+
+      <div class="ranges" id="burnRanges">
+        <button type="button" data-r="1m">1M</button>
+        <button type="button" data-r="3m">3M</button>
+        <button type="button" data-r="all" aria-pressed="true">ALL</button>
+      </div>
+    </section>
+
+    <!-- C: Needs review -->
+    <section class="card">
+      <div class="chead">
+        <div class="ctitle">Date not announced</div>
+        <span class="clink" id="reviewCount">—</span>
+      </div>
+      <div class="cnote">Listed for the course but no date posted yet. Check Brightspace or class.</div>
+      <div class="items" id="reviewList"></div>
+    </section>
+
+    <!-- D: Course standing -->
+    <section class="card">
+      <div class="chead">
+        <div class="ctitle">Next two weeks</div>
+        <span class="clink" id="nextCount">—</span>
+      </div>
+      <div class="cnote">Every deadline in the next fourteen days, soonest first.</div>
+      <div class="items" id="nextList"></div>
+    </section>
+
+  </div>
+
+  <h2 class="sech">Course by course</h2>
+  <p class="secn">One box per course. The bar is the course&rsquo;s deadlines: grey is behind us, colour is still ahead.</p>
+
+  <div class="cgrid" id="courseGrid"></div>
+
+  <p class="foot">Updated Oct 22, 2026 at 11:53pm PT from Brightspace and the course schedules. Brightspace is the official record: if a date here disagrees with it, Brightspace wins. Team deliverables are listed once for the whole team. All dates and times are Los Angeles (PT).</p>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  // Only the six live Fall courses get an identity colour; adding more hues would
+  // break the colourblind-safe palette. Completed and upcoming courses read by status.
+  var C = {
+    "GSBA 534":{n:"Operations",c:"#6B7280",u:3},
+    "GSBA 530":{n:"AI Strategy",c:"#B07AA1",u:1.5},
+    "GSBA 548":{n:"Corporate Finance",c:"#D98C3F",u:3},
+    "GSBA 583":{n:"Global Context (IELP)",c:"#5C8A72",u:2}
+  };
+
+  // Any course code in D must resolve here, or renderByCourse throws and silently
+  // blanks whole sections. Fall back rather than crash.
+  function courseMeta(code){ return C[code] || (C[code] = {n:code, c:"#8795AD", u:3}); }
+
+  var GP = {"A":4.0,"A-":3.7,"B+":3.3,"B":3.0,"B-":2.7,"C+":2.3,"C":2.0,"C-":1.7};
+
+  // Every course on the transcript for this academic year.
+  // code, name, term, units, state, grade letter (completed only), detail
+  var COURSES = [
+    ["GSBA 548", "Corporate Finance", "Fall Term B", 3, "live", null, ""],
+    ["GSBA 534", "Operations Management", "Fall Term B", 3, "live", null, ""],
+    ["GSBA 583", "The Global Context of Business (IELP)", "Fall Term B", 2, "soon", null, "Nothing posted in Brightspace yet"],
+    ["GSBA 530", "AI: Contemporary Issues in Tech Strategy", "Fall Term B", 1.5, "live", null, ""]
+  ].map(function(r){
+    return {code:r[0], name:r[1], term:r[2], units:r[3], state:r[4], grade:r[5], detail:r[6]};
+  });
+
+  // name, code, due (ISO|null), score (%|null), weight (%|null), points (raw|null),
+  // submitted (true when handed in but not yet past its due date)
+  var D = [
+    ["Kristine's Cookie Company Case 1", "GSBA 534", "2026-10-15", null, null, null, false, false],
+    ["Kristen's Cookie Company Case 2", "GSBA 534", "2026-10-16", null, null, null, false, false],
+    ["Midterm Exam", "GSBA 534", "2026-10-29", null, null, null, false, false],
+    ["Quiz 1", "GSBA 548", "2026-10-20", null, null, null, false, false],
+    ["Earnings Call Project", "GSBA 548", "2026-10-22", null, null, null, false, false],
+    ["Midterm Exam", "GSBA 548", "2026-10-27", null, null, null, false, false],
+    ["Valuation Project (team)", "GSBA 548", "2026-11-10", null, null, null, false, false],
+    ["Quiz 2", "GSBA 548", "2026-11-17", null, null, null, false, false],
+    ["Final Exam", "GSBA 548", "2026-12-02", null, null, null, false, false],
+    ["Homework Assignment #1", "GSBA 530", "2026-10-21", null, null, null, false, false]
+  ].map(function(r){
+    return {name:r[0], code:r[1], due:r[2]?new Date(r[2]+"T23:59:00"):null, score:r[3], weight:r[4], points:r[5], submitted:!!r[6], nograde:!!r[7]};
+  });
+
+  // All dates and times are Los Angeles wall-clock, whatever the viewer's own timezone.
+  // shortcut: wall-clock conversion can be off by an hour inside the DST changeover hour; fine for day-level deadlines.
+  function laNow(){ return new Date(new Date().toLocaleString("en-US",{timeZone:"America/Los_Angeles"})); }
+  var TODAY = laNow();
+  // Data snapshot is fixed; if the clock is before the sync date, read from the sync date.
+  var SYNC = new Date("2026-10-22T23:54:00");
+  if (TODAY < SYNC) TODAY = SYNC;
+
+  var fmt1 = function(n){ return (Math.round(n*10)/10).toFixed(1); };
+  var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var shortDate = function(d){ return MON[d.getMonth()]+" "+d.getDate(); };
+  var daysBetween = function(a,b){ return Math.round((a-b)/86400000); };
+
+  // ---------- B. Term burn ----------
+  var burn = (function(){
+    var dated = D.filter(function(x){ return x.due; })
+                 .sort(function(a,b){ return a.due-b.due; });
+    var days = [], cumDue = 0, cumDone = 0, seen = {};
+    dated.forEach(function(x){
+      cumDue++;
+      if (x.due <= TODAY) cumDone++;
+      var key = x.due.toISOString().slice(0,10);
+      seen[key] = {t:x.due, due:cumDue, done:cumDone};
+    });
+    Object.keys(seen).sort().forEach(function(k){ days.push(seen[k]); });
+    return days;
+  })();
+
+  (function(){
+    var upTo = burn.filter(function(p){ return p.t <= TODAY; });
+    var last = upTo[upTo.length-1] || {due:0,done:0};
+    document.getElementById("twDue").textContent = last.due;
+    document.getElementById("twDone").textContent = burn[burn.length-1].due - last.due;
+    document.getElementById("twDuePill").textContent = burn[burn.length-1].due + " by term end";
+    document.getElementById("twDonePill").textContent =
+      Math.round((burn[burn.length-1].due-last.due)/Math.max(1,burn[burn.length-1].due)*100) + "% of the term";
+  })();
+
+  var burnSvg = document.getElementById("burnSvg");
+  var burnTip = document.getElementById("burnTip");
+  var VB = {w:760, h:210, l:8, r:44, t:14, b:26};
+  var burnState = {range:"all", pts:[]};
+
+  function drawBurn(range){
+    var end = burn[burn.length-1].t;
+    var start = burn[0].t;
+    if (range==="1m") start = new Date(TODAY.getTime()-30*86400000);
+    if (range==="3m") start = new Date(TODAY.getTime()-90*86400000);
+    var pts = burn.filter(function(p){ return p.t>=start && p.t<=end; });
+    if (pts.length < 2) pts = burn.slice();
+
+    var x0 = pts[0].t.getTime(), x1 = pts[pts.length-1].t.getTime();
+    var maxY = Math.max.apply(null, pts.map(function(p){ return p.due; }));
+    var minY = Math.min.apply(null, pts.map(function(p){ return p.done; }));
+    var lo = Math.max(0, minY - 2), hi = maxY + 2;
+
+    var PX = function(t){ return VB.l + (t-x0)/Math.max(1,(x1-x0)) * (VB.w-VB.l-VB.r); };
+    var PY = function(v){ return VB.t + (1-(v-lo)/Math.max(1,(hi-lo))) * (VB.h-VB.t-VB.b); };
+
+    function path(key){
+      return pts.map(function(p,i){ return (i?"L":"M")+PX(p.t.getTime()).toFixed(1)+" "+PY(p[key]).toFixed(1); }).join(" ");
+    }
+    function area(key){
+      return path(key)
+        + " L"+PX(x1).toFixed(1)+" "+PY(lo).toFixed(1)
+        + " L"+PX(x0).toFixed(1)+" "+PY(lo).toFixed(1)+" Z";
+    }
+
+    var todayX = PX(Math.min(Math.max(TODAY.getTime(),x0),x1));
+    var s = "";
+
+    // grid
+    for (var g=0; g<=3; g++){
+      var v = lo + (hi-lo)*g/3;
+      var y = PY(v).toFixed(1);
+      s += '<line x1="'+VB.l+'" y1="'+y+'" x2="'+(VB.w-VB.r)+'" y2="'+y+'" stroke="#1A2540" stroke-width="1"/>';
+      s += '<text x="'+(VB.w-VB.r+8)+'" y="'+(parseFloat(y)+4)+'" fill="#7788A6" font-size="11" font-family="Public Sans, sans-serif">'+Math.round(v)+'</text>';
+    }
+
+    s += '<defs><linearGradient id="gDue" x1="0" y1="0" x2="0" y2="1">'
+       + '<stop offset="0%" stop-color="#C2801F" stop-opacity="0.30"/>'
+       + '<stop offset="100%" stop-color="#C2801F" stop-opacity="0"/></linearGradient></defs>';
+    s += '<path d="'+area("due")+'" fill="url(#gDue)"/>';
+
+    s += '<line x1="'+todayX.toFixed(1)+'" y1="'+VB.t+'" x2="'+todayX.toFixed(1)+'" y2="'+(VB.h-VB.b)+'" stroke="#33446B" stroke-width="1" stroke-dasharray="3 4"/>';
+    s += '<text x="'+todayX.toFixed(1)+'" y="'+(VB.t-3)+'" fill="#7788A6" font-size="10.5" text-anchor="middle" font-family="Public Sans, sans-serif">today</text>';
+
+    s += '<path d="'+path("due")+'" fill="none" stroke="#C2801F" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    s += '<path d="'+path("done")+'" fill="none" stroke="#4A86E8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+
+    var lastP = pts[pts.length-1];
+    s += '<circle cx="'+PX(lastP.t.getTime()).toFixed(1)+'" cy="'+PY(lastP.due).toFixed(1)+'" r="4" fill="#C2801F" stroke="#0D1526" stroke-width="2"/>';
+    s += '<circle cx="'+PX(lastP.t.getTime()).toFixed(1)+'" cy="'+PY(lastP.done).toFixed(1)+'" r="4" fill="#4A86E8" stroke="#0D1526" stroke-width="2"/>';
+
+    s += '<text x="'+VB.l+'" y="'+(VB.h-6)+'" fill="#7788A6" font-size="11" font-family="Public Sans, sans-serif">'+shortDate(pts[0].t)+'</text>';
+    s += '<text x="'+(VB.w-VB.r)+'" y="'+(VB.h-6)+'" fill="#7788A6" font-size="11" text-anchor="end" font-family="Public Sans, sans-serif">'+shortDate(lastP.t)+'</text>';
+
+    s += '<line id="burnCross" x1="0" y1="'+VB.t+'" x2="0" y2="'+(VB.h-VB.b)+'" stroke="#4A5C86" stroke-width="1" opacity="0"/>';
+
+    burnSvg.innerHTML = s;
+    burnState.pts = pts.map(function(p){ return {t:p.t, due:p.due, done:p.done, px:PX(p.t.getTime()), py:PY(p.due), py2:PY(p.done)}; });
+  }
+
+  function bindBurnHover(){
+    var plot = document.getElementById("burnPlot");
+    function move(ev){
+      var pts = burnState.pts;
+      if (!pts.length) return;
+      var rect = burnSvg.getBoundingClientRect();
+      var cx = ev.touches ? ev.touches[0].clientX : ev.clientX;
+      var vx = (cx - rect.left) / rect.width * VB.w;
+      var best = pts[0], bd = Infinity;
+      pts.forEach(function(p){ var d = Math.abs(p.px-vx); if (d<bd){ bd=d; best=p; } });
+      var cross = document.getElementById("burnCross");
+      if (cross){ cross.setAttribute("x1",best.px); cross.setAttribute("x2",best.px); cross.setAttribute("opacity","1"); }
+      burnTip.innerHTML =
+        '<div class="d">'+shortDate(best.t)+'</div>'
+        + '<div class="r"><span class="sw" style="background:#C2801F"></span>Due to date <b style="margin-left:auto">'+best.due+'</b></div>'
+        + '<div class="r"><span class="sw" style="background:#4A86E8"></span>Passed <b style="margin-left:auto">'+best.done+'</b></div>';
+      burnTip.style.opacity = 1;
+      var leftPx = best.px / VB.w * rect.width;
+      var tw = burnTip.offsetWidth;
+      burnTip.style.left = Math.max(0, Math.min(rect.width - tw, leftPx - tw/2)) + "px";
+      burnTip.style.top = "0px";
+    }
+    function leave(){
+      burnTip.style.opacity = 0;
+      var cross = document.getElementById("burnCross");
+      if (cross) cross.setAttribute("opacity","0");
+    }
+    plot.addEventListener("mousemove", move);
+    plot.addEventListener("touchmove", move, {passive:true});
+    plot.addEventListener("mouseleave", leave);
+    plot.addEventListener("touchend", leave);
+  }
+
+  drawBurn("all");
+  bindBurnHover();
+  document.getElementById("burnRanges").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    [].forEach.call(this.querySelectorAll("button"), function(x){ x.setAttribute("aria-pressed", x===b ? "true":"false"); });
+    drawBurn(b.dataset.r);
+  });
+
+  // Render a list of items grouped by course. Groups ordered by their soonest date.
+  function renderByCourse(host, items, rightHtml, emptyMsg){
+    if (!items.length){ host.innerHTML = '<div class="empty">'+emptyMsg+'</div>'; return; }
+    var order = [], byCode = {};
+    // Items with no posted date sort last.
+    var key = function(x){ return x.due ? x.due.getTime() : Infinity; };
+    items.slice().sort(function(a,b){ return key(a)-key(b); }).forEach(function(x){
+      if (!byCode[x.code]){ byCode[x.code] = []; order.push(x.code); }
+      byCode[x.code].push(x);
+    });
+    order.forEach(function(code){
+      var col = courseMeta(code).c;
+      var g = document.createElement("div");
+      g.className = "grp";
+      g.innerHTML = '<span class="sw" style="background:'+col+';border-radius:50%"></span>'
+        + '<span class="gn" style="color:'+col+'">'+courseMeta(code).n+' · '+code+'</span>'
+        + '<span class="gc">'+byCode[code].length+'</span>';
+      host.appendChild(g);
+      byCode[code].forEach(function(x){
+        var el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML =
+          '<span class="idate">'+(x.due?shortDate(x.due):"no date")+'</span>'
+          + '<span class="iname">'+x.name+'</span>'
+          + rightHtml(x);
+        host.appendChild(el);
+      });
+    });
+  }
+
+  // ---------- C. Date not announced ----------
+  (function(){
+    var tba = D.filter(function(x){ return !x.due; });
+    document.getElementById("reviewCount").textContent = tba.length + " pending";
+    renderByCourse(document.getElementById("reviewList"), tba,
+      function(){ return '<span class="ilate">TBA</span>'; },
+      "Every listed item has a date.");
+  })();
+
+  // ---------- E. One box per course ----------
+  (function(){
+    var grid = document.getElementById("courseGrid");
+
+    COURSES.forEach(function(c){
+      var col = C[c.code] ? C[c.code].c : "#4A5C86";
+      var box = document.createElement("section");
+      box.className = "cbox" + (c.state==="soon" ? " dim" : "");
+
+      var head = '<div class="bh"><span class="sw" style="background:'+col
+        + (c.state==="soon" ? ";opacity:.55" : "") + '"></span>'
+        + '<div><div class="bt">'+c.name+'</div>'
+        + '<div class="bc">'+c.code+' · '+c.units+' units · '+c.term+'</div></div></div>';
+
+      var body;
+
+      if (c.state === "done"){
+        body = '<div class="gchip">'+c.grade+'</div>'
+          + '<div class="bsub">'+GP[c.grade].toFixed(1)+' grade points · '
+          +   fmt1(c.units*GP[c.grade])+' quality points</div>'
+          + '<div class="bstack"><i style="width:100%;background:var(--good)"></i></div>'
+          + '<div class="bleg"><em>Final grade posted</em></div>';
+
+      } else if (c.state === "soon"){
+        body = '<div class="soon">Starts October</div>'
+          + '<div class="bsub">'+(c.detail||"")+'</div>'
+          + '<div class="bstack"><i style="width:100%;background:#243352"></i></div>'
+          + '<div class="bleg"><em>No deadlines yet</em></div>';
+
+      } else {
+        var mine = D.filter(function(x){ return x.code===c.code; });
+        var past = mine.filter(function(x){ return x.due && x.due < TODAY; }).length;
+        var ahead = mine.filter(function(x){ return x.due && x.due >= TODAY; });
+        var tba = mine.filter(function(x){ return !x.due; }).length;
+        ahead.sort(function(a,b){ return a.due-b.due; });
+        var n = past + ahead.length + tba;
+        var pc = function(v){ return n>0 ? v/n*100 : 0; };
+        body = '<div class="bnum">'+ahead.length+'</div>'
+          + '<div class="bsub">'+(ahead.length ? 'still ahead · next: '+ahead[0].name+', '+shortDate(ahead[0].due) : 'nothing left on the calendar')+'</div>'
+          + '<div class="bstack">'
+          +   '<i style="width:'+pc(past)+'%;background:#243352"></i>'
+          +   '<i style="width:'+pc(ahead.length)+'%;background:'+col+'"></i>'
+          +   '<i style="width:'+pc(tba)+'%;background:var(--muted);opacity:.4"></i>'
+          + '</div>'
+          + '<div class="bleg"><span><em>Passed</em> '+past+'</span><span><em>Ahead</em> '+ahead.length+'</span><span><em>No date</em> '+tba+'</span></div>';
+      }
+
+      box.innerHTML = head + body;
+      grid.appendChild(box);
+    });
+  })();
+
+  // ---------- E. Next two weeks ----------
+  (function(){
+    var end = new Date(TODAY.getTime()+14*86400000);
+    // Only work that is still outstanding: anything already scored or handed in drops off.
+    var up = D.filter(function(x){ return x.due && x.due>=TODAY && x.due<=end && x.score==null && !x.submitted; })
+              .sort(function(a,b){ return a.due-b.due; });
+    document.getElementById("nextCount").textContent = up.length + " deadlines";
+    renderByCourse(
+      document.getElementById("nextList"),
+      up,
+      function(x){
+        var d = daysBetween(x.due, TODAY);
+        return '<span class="iamt" style="color:'+(d<=2?"var(--crit)":"var(--ink2)")+'">'
+          + (d===0?"today":"in "+d+"d") + '</span>';
+      },
+      "Nothing due in the next fourteen days."
+    );
+  })();
+
+  document.getElementById("syncline").textContent = "Brightspace synced " + shortDate(SYNC) + ", 2026 \u00b7 times in Los Angeles (PT)";
+
+
+})();
+</script>
+
+</body></html>
