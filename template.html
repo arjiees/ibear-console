@@ -250,6 +250,16 @@
       <div class="items" id="nextList"></div>
     </section>
 
+    <!-- F: Later this term -->
+    <section class="card" style="grid-column:1/-1">
+      <div class="chead">
+        <div class="ctitle">Later this term</div>
+        <span class="clink" id="laterCount">&mdash;</span>
+      </div>
+      <div class="cnote">Everything dated beyond the next fourteen days, so you can plan ahead.</div>
+      <div class="items" id="laterList"></div>
+    </section>
+
   </div>
 
   <h2 class="sech">Course by course</h2>
@@ -554,6 +564,16 @@
       },
       "Nothing due in the next fourteen days."
     );
+  })();
+
+  // ---------- F. Later this term ----------
+  (function(){
+    var end = new Date(TODAY.getTime()+14*86400000);
+    var later = D.filter(function(x){ return x.due && x.due>end; });
+    document.getElementById("laterCount").textContent = later.length + " deadlines";
+    renderByCourse(document.getElementById("laterList"), later,
+      function(x){ return '<span class="iamt" style="color:var(--ink2)">'+daysBetween(x.due, TODAY)+' days</span>'; },
+      "Nothing dated beyond the next two weeks yet.");
   })();
 
   document.getElementById("syncline").textContent = "Brightspace synced " + shortDate(SYNC) + ", 2026 \u00b7 times in Los Angeles (PT)";
